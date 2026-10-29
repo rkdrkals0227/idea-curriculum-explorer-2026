@@ -1,0 +1,35 @@
+import {createRequire} from 'node:module';
+import {readFileSync,readdirSync} from 'node:fs';
+import {join} from 'node:path';
+import assert from 'node:assert/strict';
+const require=createRequire(import.meta.url);const wranglerRequire=createRequire(require.resolve('wrangler/package.json'));const {Miniflare}=await import(wranglerRequire.resolve('miniflare'));
+const root=new URL('../dist/server',import.meta.url).pathname;const files=(d)=>readdirSync(d,{withFileTypes:true}).flatMap(x=>x.isDirectory()?files(join(d,x.name)):[join(d,x.name)]);const modules=[join(root,'index.js'),...files(root).filter(x=>x.endsWith('.js')&&x!==join(root,'index.js'))].map(path=>({type:'ESModule',path}));
+const mf=new Miniflare({modules,modulesRoot:root,compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat'],d1Databases:['DB'],r2Buckets:['BUCKET'],cf:false});
+let passed=0;
+const req=(path,init={},user='a')=>mf.dispatchFetch('https://idea-test.example'+path,{...init,headers:{...(user?{'oai-authenticated-user-id':'qa-'+user,'oai-authenticated-user-email':'qa-'+user+'@example.test'}:{}),...init.headers}});
+const json=(method,body)=>({method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+try{
+ const db=await mf.getD1Database('DB');for(const sql of readFileSync(new URL('../drizzle/0000_peaceful_talisman.sql',import.meta.url),'utf8').split('--> statement-breakpoint'))await db.prepare(sql.trim()).run();
+ assert.equal((await req('/api/workspace',{},null)).status,401);passed++;
+ const empty=await(await req('/api/workspace')).json();assert.equal(empty.workspace,null);passed++;
+ const saved=await(await req('/api/workspace',json('PUT',{saved:['2022-12-22:4수01-16'],analyses:[],revision:null}))).json();assert.ok(saved.updatedAt);passed++;
+ assert.equal((await(await req('/api/workspace')).json()).workspace.saved.length,1);passed++;
+ assert.equal((await(await req('/api/workspace',{},'b')).json()).workspace,null);passed++;
+ assert.equal((await req('/api/workspace',json('PUT',{saved:[],analyses:[],revision:null}))).status,409);passed++;
+ assert.equal((await req('/api/workspace',json('PUT',{saved:[],analyses:[{}]}))).status,400);passed++;
+ const form=new FormData();form.append('file',new File([readFileSync(new URL('../public/sources/math.pdf',import.meta.url))],'math.pdf',{type:'application/pdf'}));form.append('metadata',JSON.stringify({title:'QA 수학과 교육과정',publisher:'교육부',notice:'교육부 고시 제2022-33호',date:'2022-12-22',book:'별책 8',url:'https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=141&boardSeq=93458'}));
+ const uploadRequest=new Request('https://idea-test.example/api/documents',{method:'POST',body:form});const uploaded=await req('/api/documents',{method:'POST',body:await uploadRequest.arrayBuffer(),headers:{'Content-Type':uploadRequest.headers.get('Content-Type')}});assert.equal(uploaded.status,200,await uploaded.clone().text());const doc=await uploaded.json();assert.equal(doc.pageCount,263);passed++;
+ assert.equal((await req('/api/documents/'+doc.id,{},'b')).status,404);passed++;
+ assert.equal((await req('/api/documents/'+doc.id)).headers.get('Content-Type'),'application/pdf');passed++;
+ const record=JSON.parse(readFileSync(new URL('../data/curriculum.json',import.meta.url)))[0];const draft={documentId:doc.id,record,publish:false,confirmed:false};
+ assert.equal((await req('/api/review',json('POST',draft))).status,200);passed++;
+ assert.equal((await(await req('/api/catalog')).json()).records.filter(x=>x.status==='personal_reviewed').length,0);passed++;
+ assert.equal((await req('/api/review',json('POST',{...draft,publish:true,confirmed:true,record:{...record,source:{page:9999}}}))).status,400);passed++;
+ assert.equal((await req('/api/review',json('POST',{...draft,record:{...record,tags:null}}))).status,400);passed++;
+ assert.equal((await req('/api/review',json('POST',{...draft,publish:true,confirmed:true}))).status,200);passed++;
+ assert.equal((await(await req('/api/catalog')).json()).records.filter(x=>x.status==='personal_reviewed').length,1);passed++;
+ assert.equal((await(await req('/api/catalog',{},'b')).json()).records.filter(x=>x.status==='personal_reviewed').length,0);passed++;
+ assert.equal((await req('/api/review',json('POST',draft),'b')).status,404);passed++;
+ assert.equal((await req('/api/workspace',{...json('PUT',{saved:[],analyses:[]}),headers:{'Content-Type':'application/json',Origin:'https://evil.example'}})).status,403);passed++;
+ console.log(`PASS: ${passed} Worker/D1/R2 integration assertions; anonymous rejection, user isolation, revision conflict, PDF upload/page count, draft exclusion, publish and ownership.`);
+}finally{await mf.dispose()}

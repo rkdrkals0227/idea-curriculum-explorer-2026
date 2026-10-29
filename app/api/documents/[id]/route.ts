@@ -1,0 +1,3 @@
+import {db,bucket,userId,errorResponse} from '../../../../lib/server';
+export const dynamic='force-dynamic';
+export async function GET(_req:Request,{params}:{params:Promise<{id:string}>}){try{const uid=await userId();const {id}=await params;const r=await db().prepare('SELECT id FROM documents WHERE id = ? AND user_id = ?').bind(id,uid).first();if(!r)return new Response('문서를 찾을 수 없습니다.',{status:404});const file=await bucket().get(`${uid}/${id}.pdf`);if(!file)return new Response('파일을 찾을 수 없습니다.',{status:404});return new Response(file.body,{headers:{'Content-Type':'application/pdf','Cache-Control':'private, no-store','Content-Disposition':'inline; filename="curriculum.pdf"','X-Content-Type-Options':'nosniff'}})}catch(e){return errorResponse(e)}}

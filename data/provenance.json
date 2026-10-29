@@ -1,0 +1,67 @@
+[
+  {
+    "localFile": "math.pdf",
+    "subject": "수학",
+    "origin": "https://ncic.re.kr",
+    "downloadEndpoint": "https://ncic.re.kr/srch/download.do",
+    "method": "POST",
+    "filePath": "/data/uploads/ncicinvFile/org/",
+    "fileName": "20221222102408052.pdf",
+    "fileIdx": "10003559",
+    "fileTbl": "NCIS_ORG_ATTACH_TYPE",
+    "sha256": "ba7c7c63ad31ba0fd32e5eb8148d696dd73288acce111495c593298112f8f840",
+    "retrieved": "2026-10-28"
+  },
+  {
+    "localFile": "science.pdf",
+    "subject": "과학",
+    "origin": "https://ncic.re.kr",
+    "downloadEndpoint": "https://ncic.re.kr/srch/download.do",
+    "method": "POST",
+    "filePath": "/data/uploads/ncicinvFile/org/",
+    "fileName": "20221222102314501.pdf",
+    "fileIdx": "10003551",
+    "fileTbl": "NCIS_ORG_ATTACH_TYPE",
+    "sha256": "0cf53427691d54366d6805767c428a15b0e817580807b4354947de7e3b58b738",
+    "retrieved": "2026-10-28"
+  },
+  {
+    "localFile": "social.pdf",
+    "subject": "사회",
+    "origin": "https://ncic.re.kr",
+    "downloadEndpoint": "https://ncic.re.kr/srch/download.do",
+    "method": "POST",
+    "filePath": "/data/uploads/ncicinvFile/org/",
+    "fileName": "a878e872-a904-4c53-96db-9379d57a3325.pdf",
+    "fileIdx": "10004260",
+    "fileTbl": "NCIS_ORG_ATTACH_TYPE",
+    "sha256": "7af87108e17391aba28944e5cd3fd0540286659d9b648134c8320e46e0168736",
+    "retrieved": "2026-10-28"
+  },
+  {
+    "localFile": "moral.pdf",
+    "subject": "도덕",
+    "origin": "https://ncic.re.kr",
+    "downloadEndpoint": "https://ncic.re.kr/srch/download.do",
+    "method": "POST",
+    "filePath": "/data/uploads/ncicinvFile/org/",
+    "fileName": "20230206103210673.pdf",
+    "fileIdx": "10003738",
+    "fileTbl": "NCIS_ORG_ATTACH_TYPE",
+    "sha256": "0682710d786a0be26efdfbd835195e4871c71bc7c3c11f71427c7087c07a850e",
+    "retrieved": "2026-10-28"
+  },
+  {
+    "localFile": "general2026.pdf",
+    "subject": "총론",
+    "origin": "https://ncic.re.kr",
+    "downloadEndpoint": "https://ncic.re.kr/srch/download.do",
+    "method": "POST",
+    "filePath": "/data/uploads/ncicinvFile/org/",
+    "fileName": "a9639593-1b5e-45bf-8220-6b39059a2dd7.pdf",
+    "fileIdx": "10004178",
+    "fileTbl": "NCIS_ORG_ATTACH_TYPE",
+    "sha256": "343e41fa969209381eabebcc8cf852e4e37d91810cf59e7b8f25cb71285ef9af",
+    "retrieved": "2026-10-28"
+  }
+]

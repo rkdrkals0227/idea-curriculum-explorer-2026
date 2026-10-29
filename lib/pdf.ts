@@ -1,0 +1,2 @@
+export async function loadPdf(data:string|ArrayBuffer){const pdfjs=await import('pdfjs-dist');pdfjs.GlobalWorkerOptions.workerSrc='/pdf.worker.min.mjs';return pdfjs.getDocument(typeof data==='string'?{url:data}:{data}).promise}
+export async function extractPdf(data:ArrayBuffer){const doc=await loadPdf(data);try{const pages:string[]=[];for(let i=1;i<=doc.numPages;i++){const p=await doc.getPage(i);const t=await p.getTextContent();pages.push(t.items.map((x:any)=>x.str+(x.hasEOL?'\n':' ')).join(''))}return pages}finally{await doc.loadingTask.destroy()}}
