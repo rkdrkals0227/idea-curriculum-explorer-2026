@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {fusionCandidates} from '../lib/fusion.ts';
+const data=JSON.parse(readFileSync(new URL('../data/curriculum.json',import.meta.url),'utf8'));
+test('우주 4학년은 과학 근거와 국어 미술 활동을 연결한다',()=>{const rr=fusionCandidates(data,'우주','4');assert.ok(rr.some(r=>r.code==='[4과13-02]'));for(const s of ['국어','미술'])assert.ok(rr.some(r=>r.subject===s));assert.ok(rr.every(r=>r.grades.includes(4)));assert.ok(rr.filter(r=>r.connection.startsWith('활동')).every(r=>r.reason.includes('직접 일치는 아닙니다')))});
+test('간접 연결 해제와 관련 기준 없는 입력',()=>{assert.ok(fusionCandidates(data,'우주','4',false).every(r=>r.connection==='내용 연결'));assert.deepEqual(fusionCandidates(data,'zzzzq','4'),[]);assert.deepEqual(fusionCandidates(data,'','4'),[])});
